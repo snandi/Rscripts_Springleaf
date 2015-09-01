@@ -18,15 +18,13 @@ DataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/Data/'
 RDataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/'
 ########################################################################
 
-
-library(readr)
-library(xgboost)
-
 set.seed(1)
 
 cat("reading the train and test data\n")
-train <- read_csv("../input/train.csv")
-test  <- read_csv("../input/test.csv")
+Filename_train <- paste0(DataPath, 'train.csv')
+train <- read_csv(Filename_train)
+Filename_test <- paste0(DataPath, 'test.csv')
+test  <- read_csv(Filename_test)
 
 feature.names <- names(train)[2:ncol(train)-1]
 
@@ -62,4 +60,5 @@ for (rows in split(1:nrow(test), ceiling((1:nrow(test))/10000))) {
 }
 
 cat("saving the submission file\n")
-write_csv(submission, "xgboost_submission.csv")
+Filename_submission <- paste0(RDataPath, "xgboost_submission.csv")
+write_csv(submission, Filename_submission)
