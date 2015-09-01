@@ -1,3 +1,22 @@
+rm(list=ls(all.names=TRUE))
+rm(list=objects(all.names=TRUE))
+#dev.off()
+
+########################################################################
+## This script merges the train_set data, with other relevant tables
+########################################################################
+
+########################################################################
+## Run Path definition file                                           ##
+########################################################################
+RScriptPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RScripts_Springleaf/'
+Filename.Header <- paste(RScriptPath, 'HeaderFile_Springleaf.R', sep='')
+source(Filename.Header)
+source(paste(RScriptPath, 'fn_Library_Springleaf.R', sep=''))
+RPlotPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/Plots/'
+DataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/Data/'
+RDataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/'
+########################################################################
 
 
 library(readr)
