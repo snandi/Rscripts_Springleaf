@@ -41,16 +41,13 @@ cat("replacing missing values with -1\n")
 train[is.na(train)] <- -1
 test[is.na(test)]   <- -1
 
-cat("sampling train to get around 8GB memory limitations\n")
-train <- train[sample(nrow(train), 40000),]
-gc()
-
 cat("training a XGBoost classifier\n")
 clf <- xgboost(data        = data.matrix(train[,feature.names]),
                label       = train$target,
-               nrounds     = 20,
+               nrounds     = 40,
                objective   = "binary:logistic",
                eval_metric = "auc")
+gc()
 
 cat("making predictions in batches due to 8GB memory limitation\n")
 submission <- data.frame(ID=test$ID)
@@ -60,5 +57,7 @@ for (rows in split(1:nrow(test), ceiling((1:nrow(test))/10000))) {
 }
 
 cat("saving the submission file\n")
-Filename_submission <- paste0(RDataPath, "xgboost_submission.csv")
+Filename_submission <- paste0(RDataPath, "xgboost_submission_2.csv")
 write_csv(submission, Filename_submission)
+
+gc()
