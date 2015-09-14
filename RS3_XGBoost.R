@@ -58,7 +58,7 @@ for(i in 1:N_TrainIter){
   cat(paste("training a XGBoost classifier", i, "\n"))
   Model <- xgboost(data        = data.matrix(train_subset[,feature.names]),
                    label       = train_subset$target,
-                   nrounds     = 40,
+                   nrounds     = 60,
                    objective   = "binary:logistic",
                    eval_metric = "auc")
   gc()
@@ -71,22 +71,22 @@ Prediction$Mean <- rowMeans(Prediction[,2:ncol(Prediction)])
 Prediction$Mean_Trim20 <- apply(X = Prediction[,2:ncol(Prediction)], MARGIN = 1, FUN = mean, trim = 0.20)
 Prediction$Median <- apply(X = Prediction[,2:ncol(Prediction)], MARGIN = 1, FUN = median)
 
-lattice::splom(Prediction[,c('Mean', 'Mean_Trim20', 'Median')])
+#lattice::splom(Prediction[,c('Mean', 'Mean_Trim20', 'Median')])
 
 cat("saving the submission file\n")
 Pred_Mean <- Prediction[,c('ID', 'Mean')]
 colnames(Pred_Mean) <- c('ID', 'target')
-Filename_submission <- paste0(RDataPath, "submission_7_40Iter_40pctTrain_Mean.csv")
+Filename_submission <- paste0(RDataPath, "submission_10_40Iter_40pctTrain_Mean.csv")
 write_csv(Pred_Mean, Filename_submission)
 
 Pred_Median <- Prediction[,c('ID', 'Median')]
 colnames(Pred_Median) <- c('ID', 'target')
-Filename_submission <- paste0(RDataPath, "submission_8_40Iter_40pctTrain_Median.csv")
+Filename_submission <- paste0(RDataPath, "submission_11_40Iter_40pctTrain_Median.csv")
 write_csv(Pred_Median, Filename_submission)
 
 Pred_Mean_Trim20 <- Prediction[,c('ID', 'Mean_Trim20')]
 colnames(Pred_Mean_Trim20) <- c('ID', 'target')
-Filename_submission <- paste0(RDataPath, "submission_9_40Iter_40pctTrain_MeanTrim20.csv")
+Filename_submission <- paste0(RDataPath, "submission_12_40Iter_40pctTrain_MeanTrim20.csv")
 write_csv(Pred_Mean_Trim20, Filename_submission)
 
 rm(Pred_Mean, Pred_Median, Pred_Mean_Trim20)
