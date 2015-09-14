@@ -20,7 +20,7 @@ DataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/Data/'
 RDataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/'
 ########################################################################
 
-N_TrainIter <- 20
+N_TrainIter <- 40
 Percent_Train <- 0.40 
 
 cat("reading the train and test data\n")
@@ -52,13 +52,13 @@ for(k in 1:N_TrainIter){
 
 Nrows_subset <- floor(nrow(train) * Percent_Train)
 for(i in 1:N_TrainIter){
-  set.seed(i)
+  set.seed(i+20)
   colname <- paste0('target_', i)
   train_subset <- train[sample(nrow(train), Nrows_subset),]
   cat(paste("training a XGBoost classifier", i, "\n"))
   Model <- xgboost(data        = data.matrix(train_subset[,feature.names]),
                    label       = train_subset$target,
-                   nrounds     = 30,
+                   nrounds     = 40,
                    objective   = "binary:logistic",
                    eval_metric = "auc")
   gc()
@@ -68,19 +68,26 @@ for(i in 1:N_TrainIter){
 }
 
 Prediction$Mean <- rowMeans(Prediction[,2:ncol(Prediction)])
-Prediction$Mean_Trim10 <- apply(X = Prediction[,2:ncol(Prediction)], MARGIN = 1, FUN = mean, trim = 0.20)
+Prediction$Mean_Trim20 <- apply(X = Prediction[,2:ncol(Prediction)], MARGIN = 1, FUN = mean, trim = 0.20)
 Prediction$Median <- apply(X = Prediction[,2:ncol(Prediction)], MARGIN = 1, FUN = median)
 
-lattice::splom(Prediction[,c('Mean', 'Mean_Trim10', 'Median')])
+lattice::splom(Prediction[,c('Mean', 'Mean_Trim20', 'Median')])
 
 cat("saving the submission file\n")
-Filename_submission <- paste0(RDataPath, "submission_4_20Iter_40pctTrain_Mean.csv")
-write_csv(Prediction[,c('ID', 'Mean')], Filename_submission)
+Pred_Mean <- Prediction[,c('ID', 'Mean')]
+colnames(Pred_Mean) <- c('ID', 'target')
+Filename_submission <- paste0(RDataPath, "submission_7_40Iter_40pctTrain_Mean.csv")
+write_csv(Pred_Mean, Filename_submission)
 
-Filename_submission <- paste0(RDataPath, "submission_5_20Iter_40pctTrain_Median.csv")
-write_csv(Prediction[,c('ID', 'Median')], Filename_submission)
+Pred_Median <- Prediction[,c('ID', 'Median')]
+colnames(Pred_Median) <- c('ID', 'target')
+Filename_submission <- paste0(RDataPath, "submission_8_40Iter_40pctTrain_Median.csv")
+write_csv(Pred_Median, Filename_submission)
 
-Filename_submission <- paste0(RDataPath, "submission_6_20Iter_40pctTrain_MeanTrim20.csv")
-write_csv(Prediction[,c('ID', 'Mean_Trim10')], Filename_submission)
+Pred_Mean_Trim20 <- Prediction[,c('ID', 'Mean_Trim20')]
+colnames(Pred_Mean_Trim20) <- c('ID', 'target')
+Filename_submission <- paste0(RDataPath, "submission_9_40Iter_40pctTrain_MeanTrim20.csv")
+write_csv(Pred_Mean_Trim20, Filename_submission)
 
+rm(Pred_Mean, Pred_Median, Pred_Mean_Trim20)
 gc()
