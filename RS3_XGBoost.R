@@ -20,8 +20,8 @@ DataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/Data/'
 RDataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/'
 ########################################################################
 
-N_TrainIter <- 40
-Percent_Train <- 0.40 
+N_TrainIter <- 80
+Percent_Train <- 0.30 
 
 cat("reading the train and test data\n")
 Filename_train <- paste0(DataPath, 'train.csv')
@@ -58,7 +58,7 @@ for(i in 1:N_TrainIter){
   cat(paste("training a XGBoost classifier", i, "\n"))
   Model <- xgboost(data        = data.matrix(train_subset[,feature.names]),
                    label       = train_subset$target,
-                   nrounds     = 60,
+                   nrounds     = 120,
                    objective   = "binary:logistic",
                    eval_metric = "auc")
   gc()
@@ -76,17 +76,17 @@ Prediction$Median <- apply(X = Prediction[,2:ncol(Prediction)], MARGIN = 1, FUN 
 cat("saving the submission file\n")
 Pred_Mean <- Prediction[,c('ID', 'Mean')]
 colnames(Pred_Mean) <- c('ID', 'target')
-Filename_submission <- paste0(RDataPath, "submission_10_40Iter_40pctTrain_Mean.csv")
+Filename_submission <- paste0(RDataPath, "submission_16_80Iter_30pctTrain_Mean.csv")
 write_csv(Pred_Mean, Filename_submission)
 
 Pred_Median <- Prediction[,c('ID', 'Median')]
 colnames(Pred_Median) <- c('ID', 'target')
-Filename_submission <- paste0(RDataPath, "submission_11_40Iter_40pctTrain_Median.csv")
+Filename_submission <- paste0(RDataPath, "submission_17_80Iter_30pctTrain_Median.csv")
 write_csv(Pred_Median, Filename_submission)
 
 Pred_Mean_Trim20 <- Prediction[,c('ID', 'Mean_Trim20')]
 colnames(Pred_Mean_Trim20) <- c('ID', 'target')
-Filename_submission <- paste0(RDataPath, "submission_12_40Iter_40pctTrain_MeanTrim20.csv")
+Filename_submission <- paste0(RDataPath, "submission_18_80Iter_30pctTrain_MeanTrim20.csv")
 write_csv(Pred_Mean_Trim20, Filename_submission)
 
 rm(Pred_Mean, Pred_Median, Pred_Mean_Trim20)

@@ -22,23 +22,37 @@
  7. submission_6_20Iter_40pctTrain_MeanTrim20: training with 40% of the original dataset, 20 iterations, taking the trimmed mean (off 20% from each side) of the predictions, with nrounds=30
     test-aus: 0.78555 (Mean is better, but this is better than median)
 
- 8. submission_8_40Iter_40pctTrain_Median: training with 40% of the original dataset, 40 iterations, taking the median of the predictions, with nrounds=40
+ 8. submission_7_40Iter_40pctTrain_Mean: training with 40% of the original dataset, 40 iterations, taking the median of the predictions, with nrounds=40
     test-auc: 0.78815 
 
- 9. submission_8_40Iter_40pctTrain_MeanTrim20: training with 40% of the original dataset, 40 iterations, taking the median of the predictions, with nrounds=40
+ 9. submission_8_40Iter_40pctTrain_Median: training with 40% of the original dataset, 40 iterations, taking the median of the predictions, with nrounds=40
     test-auc: 0.78841 
 
-10. submission_8_40Iter_40pctTrain_MeanTr: training with 40% of the original dataset, 40 iterations, taking the median of the predictions, with nrounds=40
+10. submission_9_40Iter_40pctTrain_MeanTrim20: training with 40% of the original dataset, 40 iterations, taking the median of the predictions, with nrounds=40
     test-auc: 0.78880 
 
-11. submission_11_40Iter_40pctTrain_Median: training with 40% of the original dataset, 40 iterations, taking the median of the predictions, with nrounds=60
-    test-auc: 
+11. submission_10_40Iter_40pctTrain_Mean: training with 40% of the original dataset, 40 iterations, taking the median of the predictions, with nrounds=60
+    test-auc: 0.79076
 
-12. submission_8_40Iter_40pctTrain_MeanTrim20: training with 40% of the original dataset, 40 iterations, taking the median of the predictions, with nrounds=60
+12. submission_11_40Iter_40pctTrain_Median: training with 40% of the original dataset, 40 iterations, taking the median of the predictions, with nrounds=60
     test-auc: 0.79008 
 
-13. submission_8_40Iter_40pctTrain_MeanTr: training with 40% of the original dataset, 40 iterations, taking the median of the predictions, with nrounds=60
-    test-auc:  
+13. submission_12_40Iter_40pctTrain_MeanTrim20: training with 40% of the original dataset, 40 iterations, taking the median of the predictions, with nrounds=60
+    test-auc: 0.79038 ## Mean is still the best
+
+14. submission_15_40Iter_40pctTrain_MeanTrim20: training with 40% of the original dataset, 40 iterations, taking the median of the predictions, with nrounds=120
+    test-auc: 0.79262
+
+15. submission_13_40Iter_40pctTrain_Mean: training with 40% of the original dataset, 40 iterations, taking the median of the predictions, with nrounds=120
+    test-auc: 0.79319 ## Submissions 13, 14, 15 were from executions on 09/14, the output file is RS3_XGBoost_iter40_pct40_nround120.Rout
+    ## Hisest score: 0.80489; Difference: 0.0117; Ranked 231/1389
+
+16. submission_14_40Iter_40pctTrain_Median: training with 40% of the original dataset, 40 iterations, taking the median of the predictions, with nrounds=120
+    test-auc: 0.79212 
+
+
+
+ 
 
 
 
