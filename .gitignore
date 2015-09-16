@@ -11,9 +11,6 @@ backup_linux
 *.csv
 .Rproj.user
 .Rproj.user/*
-*.Rout
 *.out
-Rout
-Rout/*
 Temp*.*
 tmp*.*

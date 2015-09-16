@@ -20,8 +20,10 @@ DataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/Data/'
 RDataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/'
 ########################################################################
 
-N_TrainIter <- 80
-Percent_Train <- 0.50 
+N_TrainIter <- 120
+Percent_Train <- 0.60 
+SubmissionNumberStart <- 22
+Nrounds <- 160
 
 cat("reading the train and test data\n")
 Filename_train <- paste0(DataPath, 'train.csv')
@@ -58,7 +60,7 @@ for(i in 1:N_TrainIter){
   cat(paste("training a XGBoost classifier", i, "\n"))
   Model <- xgboost(data        = data.matrix(train_subset[,feature.names]),
                    label       = train_subset$target,
-                   nrounds     = 120,
+                   nrounds     = Nrounds,
                    objective   = "binary:logistic",
                    eval_metric = "auc")
   gc()
@@ -76,18 +78,21 @@ Prediction$Median <- apply(X = Prediction[,2:ncol(Prediction)], MARGIN = 1, FUN 
 cat("saving the submission file\n")
 Pred_Mean <- Prediction[,c('ID', 'Mean')]
 colnames(Pred_Mean) <- c('ID', 'target')
-Filename_submission <- paste0(RDataPath, "submission_19_80Iter_50pctTrain_Mean.csv")
+Filename_submission <- paste0(RDataPath, "submission_", SubmissionNumberStart, "_", N_TrainIter, "Iter_", (Percent_Train*100), "pctTrain_Mean.csv")
 write_csv(Pred_Mean, Filename_submission)
 
 Pred_Median <- Prediction[,c('ID', 'Median')]
 colnames(Pred_Median) <- c('ID', 'target')
-Filename_submission <- paste0(RDataPath, "submission_20_80Iter_50pctTrain_Median.csv")
+#Filename_submission <- paste0(RDataPath, "submission_20_80Iter_50pctTrain_Median.csv")
+Filename_submission <- paste0(RDataPath, "submission_", (SubmissionNumberStart+1), "_", N_TrainIter, "Iter_", (Percent_Train*100), "pctTrain_Median.csv")
 write_csv(Pred_Median, Filename_submission)
 
 Pred_Mean_Trim20 <- Prediction[,c('ID', 'Mean_Trim20')]
 colnames(Pred_Mean_Trim20) <- c('ID', 'target')
-Filename_submission <- paste0(RDataPath, "submission_21_80Iter_50pctTrain_MeanTrim20.csv")
+#Filename_submission <- paste0(RDataPath, "submission_21_80Iter_50pctTrain_MeanTrim20.csv")
+Filename_submission <- paste0(RDataPath, "submission_", (SubmissionNumberStart+2), "_", N_TrainIter, "Iter_", (Percent_Train*100), "pctTrain_MeanTrim20.csv")
 write_csv(Pred_Mean_Trim20, Filename_submission)
 
 rm(Pred_Mean, Pred_Median, Pred_Mean_Trim20)
 gc()
+
