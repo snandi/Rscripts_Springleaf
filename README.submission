@@ -50,6 +50,11 @@
 16. submission_14_40Iter_40pctTrain_Median: training with 40% of the original dataset, 40 iterations, taking the median of the predictions, with nrounds=120
     test-auc: 0.79212 
 
+17. submission_17_80Iter_30pctTrain_Median.csv: training with 30% of the original dataset, 80 iterations, taking the median of the predictions, with nrounds=120
+    test-auc: 0.79242 
+
+18. submission_16_80Iter_30pctTrain_Mean.csv: training with 30% of the original dataset, 80 iterations, taking the median of the predictions, with nrounds=120
+    test-auc: 0.79313 
 
 
  

@@ -1,0 +1,113 @@
+
+R version 3.1.1 (2014-07-10) -- "Sock it to Me"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+[Previously saved workspace restored]
+
+> rm(list=ls(all.names=TRUE))
+> rm(list=objects(all.names=TRUE))
+> #dev.off()
+> 
+> ########################################################################
+> ## This script does xgboost on 30% of the train dataset, predicts the
+> ## test dataset, then repeats the procedure 100 times and uses the
+> ## average as the final prediction
+> ########################################################################
+> 
+> ########################################################################
+> ## Run Path definition file                                           ##
+> ########################################################################
+> RScriptPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RScripts_Springleaf/'
+> Filename.Header <- paste(RScriptPath, 'HeaderFile_Springleaf.R', sep='')
+> source(Filename.Header)
+Loading required package: boot
+[1] "boot already exists"
+Loading required package: car
+
+Attaching package: ‘car’
+
+The following object is masked from ‘package:boot’:
+
+    logit
+
+[1] "car already exists"
+Loading required package: ggplot2
+[1] "ggplot2 already exists"
+Loading required package: gridExtra
+[1] "gridExtra already exists"
+Loading required package: lattice
+
+Attaching package: ‘lattice’
+
+The following object is masked from ‘package:boot’:
+
+    melanoma
+
+[1] "lattice already exists"
+Loading required package: plyr
+[1] "plyr already exists"
+Loading required package: readr
+[1] "readr already exists"
+Loading required package: reshape
+
+Attaching package: ‘reshape’
+
+The following objects are masked from ‘package:plyr’:
+
+    rename, round_any
+
+[1] "reshape already exists"
+Loading required package: reshape2
+
+Attaching package: ‘reshape2’
+
+The following objects are masked from ‘package:reshape’:
+
+    colsplit, melt, recast
+
+[1] "reshape2 already exists"
+Loading required package: randomForest
+randomForest 4.6-10
+Type rfNews() to see new features/changes/bug fixes.
+[1] "randomForest already exists"
+[1] "stats already exists"
+Loading required package: xgboost
+[1] "xgboost already exists"
+Loading required package: xts
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+[1] "xts already exists"
+> source(paste(RScriptPath, 'fn_Library_Springleaf.R', sep=''))
+> RPlotPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/Plots/'
+> DataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/Data/'
+> RDataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/'
+> ########################################################################
+> 
+> N_TrainIter <- 80
+> Percent_Train <- 0.50 
+> 
+> cat("reading the train and test data\n")
+reading the train and test data
+> Filename_train <- paste0(DataPath, 'train.csv')
+> train <- readr::read_csv(Filename_train)

@@ -21,7 +21,7 @@ RDataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/'
 ########################################################################
 
 N_TrainIter <- 80
-Percent_Train <- 0.30 
+Percent_Train <- 0.50 
 
 cat("reading the train and test data\n")
 Filename_train <- paste0(DataPath, 'train.csv')
@@ -76,17 +76,17 @@ Prediction$Median <- apply(X = Prediction[,2:ncol(Prediction)], MARGIN = 1, FUN 
 cat("saving the submission file\n")
 Pred_Mean <- Prediction[,c('ID', 'Mean')]
 colnames(Pred_Mean) <- c('ID', 'target')
-Filename_submission <- paste0(RDataPath, "submission_16_80Iter_30pctTrain_Mean.csv")
+Filename_submission <- paste0(RDataPath, "submission_19_80Iter_50pctTrain_Mean.csv")
 write_csv(Pred_Mean, Filename_submission)
 
 Pred_Median <- Prediction[,c('ID', 'Median')]
 colnames(Pred_Median) <- c('ID', 'target')
-Filename_submission <- paste0(RDataPath, "submission_17_80Iter_30pctTrain_Median.csv")
+Filename_submission <- paste0(RDataPath, "submission_20_80Iter_50pctTrain_Median.csv")
 write_csv(Pred_Median, Filename_submission)
 
 Pred_Mean_Trim20 <- Prediction[,c('ID', 'Mean_Trim20')]
 colnames(Pred_Mean_Trim20) <- c('ID', 'target')
-Filename_submission <- paste0(RDataPath, "submission_18_80Iter_30pctTrain_MeanTrim20.csv")
+Filename_submission <- paste0(RDataPath, "submission_21_80Iter_50pctTrain_MeanTrim20.csv")
 write_csv(Pred_Mean_Trim20, Filename_submission)
 
 rm(Pred_Mean, Pred_Median, Pred_Mean_Trim20)
