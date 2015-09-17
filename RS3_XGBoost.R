@@ -20,10 +20,10 @@ DataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/Data/'
 RDataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/'
 ########################################################################
 
-N_TrainIter <- 120
+N_TrainIter <- 80
 Percent_Train <- 0.60 
-SubmissionNumberStart <- 22
-Nrounds <- 160
+SubmissionNumberStart <- 25
+Nrounds <- 240
 
 cat("reading the train and test data\n")
 Filename_train <- paste0(DataPath, 'train.csv')
