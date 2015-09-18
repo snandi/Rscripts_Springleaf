@@ -70,6 +70,17 @@
     test-auc: 0.79616 ## Submissions 21 and 22 were from executions on 09/17, the output file is RS3_XGBoost_iter120_pct60_nround160.Rout
     ## Highest score: 0.80489; Difference: 0.00873; Ranked 172/1456
 
+23. submission_26_80Iter_60pctTrain_Median.csv: training with 60% of the original dataset, 80 iterations, taking the median of the predictions, with nrounds=240
+    test-auc: 0.79676
+
+24. submission_27_80Iter_60pctTrain_MeanTrim20.csv: training with 60% of the original dataset, 80 iterations, taking the median of the predictions, with nrounds=240
+    test-auc: 0.79698
+
+25. submission_25_80Iter_60pctTrain_Mean.csv: training with 60% of the original dataset, 80 iterations, taking the median of the predictions, with nrounds=240
+    test-auc: 0.79726 ## Submissions 23, 24 and 25 were from executions on 09/18, the output file is RS3_XGBoost_iter80_pct60_nround240.Rout
+    ## Highest score: 0.80489; Difference: 0.00763; Ranked 142/1498
+
+
 
  
 
