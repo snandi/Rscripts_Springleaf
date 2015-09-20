@@ -90,6 +90,9 @@
 28. submission_31_10Iter_95pctTrain_Mean.csv: training with 95% of the original dataset, 10 iterations, taking the median of the predictions, with nrounds=400
     test-auc: 0.79438
 
+29. submission_32_100Iter_65pctTrain_Mean.csv: training with 65% of the original dataset, 100 iterations, taking the median of the predictions, with nrounds=400
+    test-auc: 0.79835 ## Submissions 29 were from executions on 09/19, the output file is RS3_XGBoost_iter100_pct65_nround400.Rout
+    ## Highest score: 0.80489; Difference: 0.00654; Ranked 118/1511
 
 
  

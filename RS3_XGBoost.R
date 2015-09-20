@@ -22,8 +22,8 @@ RDataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/'
 
 N_TrainIter <- 100
 Percent_Train <- 0.65
-SubmissionNumberStart <- 32
-Nrounds <- 400
+SubmissionNumberStart <- 33
+Nrounds <- 20
 
 cat("reading the train and test data\n")
 Filename_train <- paste0(DataPath, 'train.csv')
@@ -62,7 +62,8 @@ for(i in 1:N_TrainIter){
                    label       = train_subset$target,
                    nrounds     = Nrounds,
                    objective   = "binary:logistic",
-                   eval_metric = "auc")
+                   eval_metric = "auc",
+                   max.depth   = 12)
   gc()
   Prediction[, colname] <- predict(Model, data.matrix(test[,feature.names]))
   rm(Model, train_subset)

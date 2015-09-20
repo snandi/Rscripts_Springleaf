@@ -1,0 +1,581 @@
+
+R version 3.1.1 (2014-07-10) -- "Sock it to Me"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-unknown-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> rm(list=ls(all.names=TRUE))
+> rm(list=objects(all.names=TRUE))
+> #dev.off()
+> 
+> ########################################################################
+> ## This script does xgboost on 30% of the train dataset, predicts the
+> ## test dataset, then repeats the procedure 100 times and uses the
+> ## average as the final prediction
+> ########################################################################
+> 
+> ########################################################################
+> ## Run Path definition file                                           ##
+> ########################################################################
+> RScriptPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RScripts_Springleaf/'
+> Filename.Header <- paste(RScriptPath, 'HeaderFile_Springleaf.R', sep='')
+> source(Filename.Header)
+Loading required package: boot
+[1] "boot already exists"
+Loading required package: car
+
+Attaching package: ‘car’
+
+The following object is masked from ‘package:boot’:
+
+    logit
+
+[1] "car already exists"
+Loading required package: ggplot2
+[1] "ggplot2 already exists"
+Loading required package: gridExtra
+[1] "gridExtra already exists"
+Loading required package: lattice
+
+Attaching package: ‘lattice’
+
+The following object is masked from ‘package:boot’:
+
+    melanoma
+
+[1] "lattice already exists"
+Loading required package: plyr
+[1] "plyr already exists"
+Loading required package: readr
+[1] "readr already exists"
+Loading required package: reshape
+
+Attaching package: ‘reshape’
+
+The following objects are masked from ‘package:plyr’:
+
+    rename, round_any
+
+[1] "reshape already exists"
+Loading required package: reshape2
+
+Attaching package: ‘reshape2’
+
+The following objects are masked from ‘package:reshape’:
+
+    colsplit, melt, recast
+
+[1] "reshape2 already exists"
+Loading required package: randomForest
+randomForest 4.6-10
+Type rfNews() to see new features/changes/bug fixes.
+[1] "randomForest already exists"
+[1] "stats already exists"
+Loading required package: xgboost
+[1] "xgboost already exists"
+Loading required package: xts
+Loading required package: zoo
+
+Attaching package: ‘zoo’
+
+The following objects are masked from ‘package:base’:
+
+    as.Date, as.Date.numeric
+
+[1] "xts already exists"
+> source(paste(RScriptPath, 'fn_Library_Springleaf.R', sep=''))
+> RPlotPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/Plots/'
+> DataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/Data/'
+> RDataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/'
+> ########################################################################
+> 
+> N_TrainIter <- 100
+> Percent_Train <- 0.65
+> SubmissionNumberStart <- 33
+> Nrounds <- 20
+> 
+> cat("reading the train and test data\n")
+reading the train and test data
+> Filename_train <- paste0(DataPath, 'train.csv')
+> train <- readr::read_csv(Filename_train)
+|================================================================================| 100%  920 MB
+Warning message:
+2269 problems parsing '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/Data/train.csv'. See problems(...) for more details. 
+> Filename_test <- paste0(DataPath, 'test.csv')
+> test  <- readr::read_csv(Filename_test)
+|================================================================================| 100%  920 MB
+Warning message:
+6894 problems parsing '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/Data/test.csv'. See problems(...) for more details. 
+> 
+> feature.names <- names(train)[2:ncol(train)-1]
+> 
+> cat("assuming text variables are categorical & replacing them with numeric ids\n")
+assuming text variables are categorical & replacing them with numeric ids
+> for (f in feature.names) {
++   if (class(train[[f]])=="character") {
++     levels <- unique(c(train[[f]], test[[f]]))
++     train[[f]] <- as.integer(factor(train[[f]], levels=levels))
++     test[[f]]  <- as.integer(factor(test[[f]],  levels=levels))
++   }
++ }
+> 
+> cat("replacing missing values with -1\n")
+replacing missing values with -1
+> train[is.na(train)] <- -1
+> test[is.na(test)]   <- -1
+> 
+> Prediction <- data.frame(ID=test$ID)
+> for(k in 1:N_TrainIter){
++   Prediction$target <- 0
++   colnames(Prediction)[colnames(Prediction)=='target'] <- paste0('target_', k)
++ }
+> 
+> Nrows_subset <- floor(nrow(train) * Percent_Train)
+> for(i in 1:N_TrainIter){
++   set.seed(i+20)
++   colname <- paste0('target_', i)
++   train_subset <- train[sample(nrow(train), Nrows_subset),]
++   cat(paste("training a XGBoost classifier", i, "\n"))
++   Model <- xgboost(data        = data.matrix(train_subset[,feature.names]),
++                    label       = train_subset$target,
++                    nrounds     = Nrounds,
++                    objective   = "binary:logistic",
++                    eval_metric = "auc",
++                    max.depth   = 12)
++   gc()
++   Prediction[, colname] <- predict(Model, data.matrix(test[,feature.names]))
++   rm(Model, train_subset)
++   gc()
++ }
+training a XGBoost classifier 1 
+[0]	train-auc:0.837202
+[1]	train-auc:0.881064
+[2]	train-auc:0.908937
+[3]	train-auc:0.930857
+[4]	train-auc:0.944865
+[5]	train-auc:0.957582
+[6]	train-auc:0.966903
+[7]	train-auc:0.975169
+[8]	train-auc:0.979488
+[9]	train-auc:0.985540
+[10]	train-auc:0.989344
+[11]	train-auc:0.991518
+[12]	train-auc:0.993799
+[13]	train-auc:0.994923
+[14]	train-auc:0.996000
+[15]	train-auc:0.996898
+[16]	train-auc:0.997281
+[17]	train-auc:0.998024
+[18]	train-auc:0.998463
+[19]	train-auc:0.998812
+training a XGBoost classifier 2 
+[0]	train-auc:0.827518
+[1]	train-auc:0.874389
+[2]	train-auc:0.904884
+[3]	train-auc:0.925236
+[4]	train-auc:0.944555
+[5]	train-auc:0.957945
+[6]	train-auc:0.967733
+[7]	train-auc:0.975233
+[8]	train-auc:0.982105
+[9]	train-auc:0.985883
+[10]	train-auc:0.989219
+[11]	train-auc:0.992237
+[12]	train-auc:0.994364
+[13]	train-auc:0.995740
+[14]	train-auc:0.996574
+[15]	train-auc:0.997464
+[16]	train-auc:0.998232
+[17]	train-auc:0.998578
+[18]	train-auc:0.998765
+[19]	train-auc:0.999128
+training a XGBoost classifier 3 
+[0]	train-auc:0.827159
+[1]	train-auc:0.875045
+[2]	train-auc:0.905884
+[3]	train-auc:0.930253
+[4]	train-auc:0.948202
+[5]	train-auc:0.961295
+[6]	train-auc:0.970659
+[7]	train-auc:0.976814
+[8]	train-auc:0.982540
+[9]	train-auc:0.987199
+[10]	train-auc:0.990832
+[11]	train-auc:0.993648
+[12]	train-auc:0.994920
+[13]	train-auc:0.996118
+[14]	train-auc:0.997282
+[15]	train-auc:0.997910
+[16]	train-auc:0.998418
+[17]	train-auc:0.998766
+[18]	train-auc:0.999033
+[19]	train-auc:0.999065
+training a XGBoost classifier 4 
+[0]	train-auc:0.825198
+[1]	train-auc:0.872620
+[2]	train-auc:0.904368
+[3]	train-auc:0.926444
+[4]	train-auc:0.944434
+[5]	train-auc:0.956321
+[6]	train-auc:0.965659
+[7]	train-auc:0.973287
+[8]	train-auc:0.979592
+[9]	train-auc:0.985258
+[10]	train-auc:0.989519
+[11]	train-auc:0.991933
+[12]	train-auc:0.993523
+[13]	train-auc:0.995330
+[14]	train-auc:0.996494
+[15]	train-auc:0.997208
+[16]	train-auc:0.997678
+[17]	train-auc:0.998010
+[18]	train-auc:0.998499
+[19]	train-auc:0.998748
+training a XGBoost classifier 5 
+[0]	train-auc:0.824917
+[1]	train-auc:0.872652
+[2]	train-auc:0.901787
+[3]	train-auc:0.925554
+[4]	train-auc:0.941688
+[5]	train-auc:0.953669
+[6]	train-auc:0.964024
+[7]	train-auc:0.974156
+[8]	train-auc:0.980274
+[9]	train-auc:0.985424
+[10]	train-auc:0.988938
+[11]	train-auc:0.991514
+[12]	train-auc:0.994132
+[13]	train-auc:0.994903
+[14]	train-auc:0.995881
+[15]	train-auc:0.996886
+[16]	train-auc:0.997721
+[17]	train-auc:0.998291
+[18]	train-auc:0.998526
+[19]	train-auc:0.998694
+training a XGBoost classifier 6 
+[0]	train-auc:0.830800
+[1]	train-auc:0.877143
+[2]	train-auc:0.903093
+[3]	train-auc:0.925259
+[4]	train-auc:0.941153
+[5]	train-auc:0.953860
+[6]	train-auc:0.964588
+[7]	train-auc:0.973252
+[8]	train-auc:0.980295
+[9]	train-auc:0.985892
+[10]	train-auc:0.989065
+[11]	train-auc:0.991264
+[12]	train-auc:0.992930
+[13]	train-auc:0.994780
+[14]	train-auc:0.995921
+[15]	train-auc:0.996938
+[16]	train-auc:0.997761
+[17]	train-auc:0.998392
+[18]	train-auc:0.998589
+[19]	train-auc:0.999008
+training a XGBoost classifier 7 
+[0]	train-auc:0.830883
+[1]	train-auc:0.880128
+[2]	train-auc:0.906639
+[3]	train-auc:0.927731
+[4]	train-auc:0.943819
+[5]	train-auc:0.957048
+[6]	train-auc:0.968047
+[7]	train-auc:0.976570
+[8]	train-auc:0.982424
+[9]	train-auc:0.986718
+[10]	train-auc:0.989373
+[11]	train-auc:0.992502
+[12]	train-auc:0.993975
+[13]	train-auc:0.995606
+[14]	train-auc:0.996574
+[15]	train-auc:0.997656
+[16]	train-auc:0.998135
+[17]	train-auc:0.998504
+[18]	train-auc:0.998834
+[19]	train-auc:0.999035
+training a XGBoost classifier 8 
+[0]	train-auc:0.823861
+[1]	train-auc:0.870631
+[2]	train-auc:0.900238
+[3]	train-auc:0.921106
+[4]	train-auc:0.940494
+[5]	train-auc:0.953018
+[6]	train-auc:0.963699
+[7]	train-auc:0.972360
+[8]	train-auc:0.978705
+[9]	train-auc:0.983973
+[10]	train-auc:0.988742
+[11]	train-auc:0.991682
+[12]	train-auc:0.993307
+[13]	train-auc:0.993953
+[14]	train-auc:0.995389
+[15]	train-auc:0.996338
+[16]	train-auc:0.997206
+[17]	train-auc:0.997581
+[18]	train-auc:0.998149
+[19]	train-auc:0.998808
+training a XGBoost classifier 9 
+[0]	train-auc:0.830627
+[1]	train-auc:0.875722
+[2]	train-auc:0.903181
+[3]	train-auc:0.924973
+[4]	train-auc:0.942209
+[5]	train-auc:0.954810
+[6]	train-auc:0.965338
+[7]	train-auc:0.975195
+[8]	train-auc:0.982376
+[9]	train-auc:0.987988
+[10]	train-auc:0.990908
+[11]	train-auc:0.993972
+[12]	train-auc:0.995322
+[13]	train-auc:0.996305
+[14]	train-auc:0.997206
+[15]	train-auc:0.997687
+[16]	train-auc:0.998191
+[17]	train-auc:0.998670
+[18]	train-auc:0.999032
+[19]	train-auc:0.999375
+training a XGBoost classifier 10 
+[0]	train-auc:0.830483
+[1]	train-auc:0.875305
+[2]	train-auc:0.903959
+[3]	train-auc:0.925367
+[4]	train-auc:0.941422
+[5]	train-auc:0.956574
+[6]	train-auc:0.966568
+[7]	train-auc:0.974361
+[8]	train-auc:0.981414
+[9]	train-auc:0.987374
+[10]	train-auc:0.990126
+[11]	train-auc:0.991795
+[12]	train-auc:0.993804
+[13]	train-auc:0.995469
+[14]	train-auc:0.996584
+[15]	train-auc:0.997373
+[16]	train-auc:0.998005
+[17]	train-auc:0.998602
+[18]	train-auc:0.998785
+[19]	train-auc:0.998983
+training a XGBoost classifier 11 
+[0]	train-auc:0.831317
+[1]	train-auc:0.876956
+[2]	train-auc:0.907290
+[3]	train-auc:0.928921
+[4]	train-auc:0.945197
+[5]	train-auc:0.957996
+[6]	train-auc:0.967418
+[7]	train-auc:0.976369
+[8]	train-auc:0.982485
+[9]	train-auc:0.986868
+[10]	train-auc:0.990385
+[11]	train-auc:0.992692
+[12]	train-auc:0.994424
+[13]	train-auc:0.996391
+[14]	train-auc:0.997266
+[15]	train-auc:0.997860
+[16]	train-auc:0.998350
+[17]	train-auc:0.998762
+[18]	train-auc:0.999008
+[19]	train-auc:0.999263
+training a XGBoost classifier 12 
+[0]	train-auc:0.825813
+[1]	train-auc:0.875715
+[2]	train-auc:0.904190
+[3]	train-auc:0.924825
+[4]	train-auc:0.943167
+[5]	train-auc:0.955472
+[6]	train-auc:0.965444
+[7]	train-auc:0.973154
+[8]	train-auc:0.980454
+[9]	train-auc:0.985163
+[10]	train-auc:0.988627
+[11]	train-auc:0.991584
+[12]	train-auc:0.994069
+[13]	train-auc:0.995516
+[14]	train-auc:0.996833
+[15]	train-auc:0.997347
+[16]	train-auc:0.997896
+[17]	train-auc:0.998354
+[18]	train-auc:0.998608
+[19]	train-auc:0.998896
+training a XGBoost classifier 13 
+[0]	train-auc:0.828852
+[1]	train-auc:0.876421
+[2]	train-auc:0.904499
+[3]	train-auc:0.925981
+[4]	train-auc:0.941694
+[5]	train-auc:0.953580
+[6]	train-auc:0.965785
+[7]	train-auc:0.974412
+[8]	train-auc:0.981767
+[9]	train-auc:0.985927
+[10]	train-auc:0.989655
+[11]	train-auc:0.992296
+[12]	train-auc:0.994620
+[13]	train-auc:0.995919
+[14]	train-auc:0.996679
+[15]	train-auc:0.997636
+[16]	train-auc:0.998158
+[17]	train-auc:0.998525
+[18]	train-auc:0.998794
+[19]	train-auc:0.999056
+training a XGBoost classifier 14 
+[0]	train-auc:0.826446
+[1]	train-auc:0.874053
+[2]	train-auc:0.906056
+[3]	train-auc:0.928908
+[4]	train-auc:0.944511
+[5]	train-auc:0.957365
+[6]	train-auc:0.966308
+[7]	train-auc:0.974279
+[8]	train-auc:0.982385
+[9]	train-auc:0.987039
+[10]	train-auc:0.989850
+[11]	train-auc:0.992953
+[12]	train-auc:0.994429
+[13]	train-auc:0.995549
+[14]	train-auc:0.996502
+[15]	train-auc:0.997300
+[16]	train-auc:0.997709
+[17]	train-auc:0.998171
+[18]	train-auc:0.998485
+[19]	train-auc:0.998713
+training a XGBoost classifier 15 
+[0]	train-auc:0.828413
+[1]	train-auc:0.877937
+[2]	train-auc:0.907180
+[3]	train-auc:0.927348
+[4]	train-auc:0.942199
+[5]	train-auc:0.956784
+[6]	train-auc:0.967064
+[7]	train-auc:0.974391
+[8]	train-auc:0.981119
+[9]	train-auc:0.986448
+[10]	train-auc:0.990821
+[11]	train-auc:0.993738
+[12]	train-auc:0.994639
+[13]	train-auc:0.995953
+[14]	train-auc:0.997064
+[15]	train-auc:0.997998
+[16]	train-auc:0.998488
+[17]	train-auc:0.998829
+[18]	train-auc:0.998990
+[19]	train-auc:0.999330
+training a XGBoost classifier 16 
+[0]	train-auc:0.835851
+[1]	train-auc:0.878714
+[2]	train-auc:0.907420
+[3]	train-auc:0.928874
+[4]	train-auc:0.947209
+[5]	train-auc:0.959792
+[6]	train-auc:0.969763
+[7]	train-auc:0.977047
+[8]	train-auc:0.983428
+[9]	train-auc:0.988300
+[10]	train-auc:0.991836
+[11]	train-auc:0.994292
+[12]	train-auc:0.995738
+[13]	train-auc:0.996970
+[14]	train-auc:0.997404
+[15]	train-auc:0.997964
+[16]	train-auc:0.998369
+[17]	train-auc:0.998528
+[18]	train-auc:0.998767
+[19]	train-auc:0.999030
+training a XGBoost classifier 17 
+[0]	train-auc:0.830953
+[1]	train-auc:0.877637
+[2]	train-auc:0.905727
+[3]	train-auc:0.926791
+[4]	train-auc:0.944183
+[5]	train-auc:0.955206
+[6]	train-auc:0.965791
+[7]	train-auc:0.974498
+[8]	train-auc:0.981182
+[9]	train-auc:0.985772
+[10]	train-auc:0.988904
+[11]	train-auc:0.991917
+[12]	train-auc:0.994022
+[13]	train-auc:0.994977
+[14]	train-auc:0.996253
+[15]	train-auc:0.996955
+[16]	train-auc:0.997537
+[17]	train-auc:0.998018
+[18]	train-auc:0.998435
+[19]	train-auc:0.998894
+training a XGBoost classifier 18 
+[0]	train-auc:0.835139
+[1]	train-auc:0.881498
+[2]	train-auc:0.908899
+[3]	train-auc:0.929429
+[4]	train-auc:0.944595
+[5]	train-auc:0.958118
+[6]	train-auc:0.966864
+[7]	train-auc:0.976145
+[8]	train-auc:0.982260
+[9]	train-auc:0.986841
+[10]	train-auc:0.990699
+[11]	train-auc:0.992925
+[12]	train-auc:0.994891
+[13]	train-auc:0.995827
+[14]	train-auc:0.996983
+[15]	train-auc:0.997636
+[16]	train-auc:0.998194
+[17]	train-auc:0.998757
+[18]	train-auc:0.999090
+[19]	train-auc:0.999211
+training a XGBoost classifier 19 
+[0]	train-auc:0.826736
+[1]	train-auc:0.875499
+[2]	train-auc:0.904928
+[3]	train-auc:0.927938
+[4]	train-auc:0.942535
+[5]	train-auc:0.955657
+[6]	train-auc:0.964534
+[7]	train-auc:0.973700
+[8]	train-auc:0.980621
+[9]	train-auc:0.984696
+[10]	train-auc:0.989039
+[11]	train-auc:0.991792
+[12]	train-auc:0.993532
+[13]	train-auc:0.994884
+[14]	train-auc:0.996012
+[15]	train-auc:0.996654
+[16]	train-auc:0.997610
+[17]	train-auc:0.998142
+[18]	train-auc:0.998281
+[19]	train-auc:0.998684
+training a XGBoost classifier 20 
+[0]	train-auc:0.829601
+[1]	train-auc:0.879482
+[2]	train-auc:0.904665
+[3]	train-auc:0.925219
+[4]	train-auc:0.941077
+[5]	train-auc:0.952881
+[6]	train-auc:0.962368
+[7]	train-auc:0.972320
+[8]	train-auc:0.979485
+[9]	train-auc:0.985526
+[10]	train-auc:0.989483
+[11]	train-auc:0.991994
+[12]	train-auc:0.993783
+[13]	train-auc:0.994892
+[14]	train-auc:0.996099
+[15]	train-auc:0.996811
+[16]	train-auc:0.997784
+[17]	train-auc:0.998150
+[18]	train-auc:0.998486
