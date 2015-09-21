@@ -94,6 +94,9 @@
     test-auc: 0.79835 ## Submissions 29 were from executions on 09/19, the output file is RS3_XGBoost_iter100_pct65_nround400.Rout
     ## Highest score: 0.80489; Difference: 0.00654; Ranked 118/1511
 
+30. submission_33_100Iter_65pctTrain_Mean.csv: training with 65% of the original dataset, 100 iterations, taking the median of the predictions, with nrounds=400, with max.depth=12
+    test-auc: 0.79263; So, max.depth should be reduced back to 6
+
 
  
 
