@@ -3,9 +3,7 @@ rm(list=objects(all.names=TRUE))
 #dev.off()
 
 ########################################################################
-## This script does xgboost on 30% of the train dataset, predicts the
-## test dataset, then repeats the procedure 100 times and uses the
-## average as the final prediction
+## This script uses Lasso to choose important features
 ########################################################################
 
 ########################################################################
@@ -20,15 +18,15 @@ DataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/Data/'
 RDataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/'
 ########################################################################
 
-N_TrainIter <- 80
-Percent_Train <- 0.65
-SubmissionNumberStart <- 34
-Nrounds <- 400
+## N_TrainIter <- 80
+## Percent_Train <- 0.65
+## SubmissionNumberStart <- 34
+## Nrounds <- 400
 
 cat("reading the train and test data\n")
-Filename_train <- paste0(DataPath, 'train.csv')
+Filename_train <- paste0(DataPath, 'train_4000.csv')
 train <- readr::read_csv(Filename_train)
-Filename_test <- paste0(DataPath, 'test.csv')
+Filename_test <- paste0(DataPath, 'test_4000.csv')
 test  <- readr::read_csv(Filename_test)
 
 feature.names <- names(train)[2:ncol(train)-1]

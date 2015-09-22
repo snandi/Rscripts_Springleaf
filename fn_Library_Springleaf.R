@@ -67,7 +67,7 @@ rowSE <- function(Data){
 fn_loadAllData <- function(RDataPath){
   csvFiles <- list.files(path = RDataPath, pattern = '.csv')
   csvFiles <- csvFiles %w/o% c('train_set.csv', 'test_set.csv')
-#   File <- csvFiles[1]
+  #   File <- csvFiles[1]
   for(File in csvFiles){
     print(paste('Loading', File))
     Filename <- paste(RDataPath, File, sep = '')
@@ -81,12 +81,12 @@ fn_loadAllData <- function(RDataPath){
 ## Load atasets individually, like test & train
 ########################################################################
 fn_loadData <- function(RDataPath, File = 'test_set.csv', Return = FALSE){
-    print(paste('Loading', File))
-    Filename <- paste(RDataPath, File, sep = '')
-    Data <- read.csv(Filename, header = T, quote = '')
-    File_trunc <- substr(x = File, start = 1, stop = (nchar(File) - 4))
-    assign(x = File_trunc, value = Data, envir = .GlobalEnv)
-    if(Return) return(Data)
+  print(paste('Loading', File))
+  Filename <- paste(RDataPath, File, sep = '')
+  Data <- read.csv(Filename, header = T, quote = '')
+  File_trunc <- substr(x = File, start = 1, stop = (nchar(File) - 4))
+  assign(x = File_trunc, value = Data, envir = .GlobalEnv)
+  if(Return) return(Data)
 }
 
 ########################################################################
@@ -161,7 +161,7 @@ fn_prepData_tubeComp <- function(trainORtest = 'test_set'){
   tube_by_component_type <- fn_merge_tube_comp_type(File1 = 'tube.csv', File2 = 'bill_of_materials.csv')
   
   TT_tube_comptype <- merge(x = TT_tube, y = tube_by_component_type, by = 'tube_assembly_id',
-                               all.x = T, all.y = F)
+                            all.x = T, all.y = F)
   if(trainORtest == 'train_set.csv') {
     TT_tube_comptype$log_ai <- log(TT_tube_comptype$cost + 1)  
   }
@@ -318,12 +318,37 @@ fn_predictCostFromQty <- function(Data){
   Data$qty_max4 <- sapply(X=Data[,'quantity'], FUN=function(q){min(q, exp(4))})
   Data$cost_RF1 <- exp(Cost_Qty1 + Beta1 * log(Data$qty_max4) + Beta2 * (log(Data$qty_max4))^2) - 1
   Data$cost_RF1[Data$cost_RF1 < 0] <- 0.1
- 
+  
   Data$cost_actualqty <- exp(Cost_Qty1 + Beta1 * log(Data$quantity) + Beta2 * (log(Data$quantity))^2) - 1
   Data$cost_actualqty[Data$cost_actualqty < 0] <- 0.1
-
+  
   Data$cost_Model1 <- exp(Cost_Qty1_Model1 + Beta1 * log(Data$qty_max4) + Beta2 * (log(Data$qty_max4))^2) - 1
   Data$cost_Model1[Data$cost_Model1 < 0] <- 0.1
   return(Data)
 }
 ########################################################################
+
+fn_boxplot <- function(train, feature, RPlotPath){
+  
+  Filename <- paste0(RPlotPath, feature, '.pdf')
+  pdf(file = Filename, onefile = T)
+  
+  BoxPlot1 <- qplot(y = train[,feature], x = factor(target), data = train) +
+    geom_boxplot(aes(fill = target)) + 
+    ggtitle(label = feature) +
+    xlab(label = feature) + ylab(label = 'target') +
+    coord_flip()
+  print(BoxPlot1)
+  
+  if(min(train[,feature]) >= 0){
+    BoxPlot2 <- qplot(y = log(train[,feature]), x = factor(target), data = train) +
+      geom_boxplot(aes(fill = target)) + 
+      ggtitle(label = feature) +
+      xlab(label = paste0('log(', feature, ')')) + ylab(label = 'target') +
+      coord_flip()
+    
+    print(BoxPlot2)
+  }
+  dev.off()
+}
+
