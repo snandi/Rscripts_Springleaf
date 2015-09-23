@@ -97,6 +97,9 @@
 30. submission_33_100Iter_65pctTrain_Mean.csv: training with 65% of the original dataset, 100 iterations, taking the median of the predictions, with nrounds=400, with max.depth=12
     test-auc: 0.79263; So, max.depth should be reduced back to 6
 
+31. submission_35_200Iter_65pctTrain_Mean.csv: training with 65% of the original dataset, 200 iterations, taking the mean of the predictions, with nrounds=140, with max.depth=8
+    test-auc: 0.79852; ## Highest score: 0.80489; Difference: 0.00637; Ranked 127/1636
+
 
  
 

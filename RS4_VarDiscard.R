@@ -25,9 +25,13 @@ RDataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/'
 
 Filename_badVar_Int <- paste0(DataPath, 'badVar_Int.txt')
 Filename_badVar_Chr <- paste0(DataPath, 'badVar_Chr.txt')
+Filename_NA <- paste0(DataPath, 'badVar_NAremoved.txt')
+Filename_99 <- paste0(DataPath, 'badVar_99999removed.txt')
 
 system(command = paste('rm -f', Filename_badVar_Int))
 system(command = paste('rm -f', Filename_badVar_Chr))
+system(command = paste('rm -f', Filename_NA))
+system(command = paste('rm -f', Filename_99))
 
 cat("reading the train and test data\n")
 Filename_train <- paste0(DataPath, 'train.csv')
@@ -54,31 +58,59 @@ for (feature in feature.names) {
 }
 ########################################################################
 
+feature.int <- c()
+feature.chr <- c()
+for (feature in feature.names[2:length(feature.names)]) {
+  if(class(train[[feature]]) == 'integer'){
+    feature.int <- c(feature.int, feature)
+  } else{
+    feature.chr <- c(feature.chr, feature)
+  }
+}  
+
 ########################################################################
 ## Checking if any factor variable has only 1 level
 ########################################################################
-for (feature in feature.names[2:length(feature.names)]) {
-  if(class(train[[feature]]) == 'integer'){
-    print(feature)
-    train[,feature] <- na.is.zero(train[,feature])
-    if(min(train[,feature]) != max(train[,feature])){
-      fn_boxplot(feature = feature, train = train, RPlotPath = RPlotPath)
-    } else{
-      print(paste('Useless variable', feature))
-      print(summary(train[,feature]))
-      cat(feature, file = Filename_badVar_Int, sep='\n', append=T)
-    }
-  }
-}
+## for (feature in feature.int[10:20]) {
+##   fn_boxplot(
+##     train = train,
+##     feature = feature,
+##     RPlotPath = RPlotPath,
+##     f_badVar_Int = Filename_badVar_Int,
+##     f_NA = Filename_NA,
+##     f_99 = Filename_99
+##   )
+## }
+
 ########################################################################
+## For parallel execution
+########################################################################
+NCores <- 8
+cl <- makeCluster(NCores)
+registerDoParallel(cl)
+foreach(feature = feature.int, .inorder=FALSE, .packages=Packages_Par) %dopar%   fn_boxplot(
+    train = train,
+    feature = feature,
+    RPlotPath = RPlotPath,
+    f_badVar_Int = Filename_badVar_Int,
+    f_NA = Filename_NA,
+    f_99 = Filename_99
+  )
+stopCluster(cl)
+gc()
 
+for(feature in feature.chr){
+  if(max(is.na(train[,feature])) > 0){
+    train[,feature] <- na.is.zero(train[,feature])
+    cat(feature, file = f_NA, sep='\n', append=T)
+  }
+  train[,feature] <- as.factor(train[,feature]
+}
 
-cat("assuming text variables are categorical & replacing them with numeric ids\n")
-
-
-
-cat("replacing missing values with -1\n")
-train[is.na(train)] <- -1
-test[is.na(test)]   <- -1
-
-
+                                        # 
+# 
+# cat("replacing missing values with -1\n")
+# train[is.na(train)] <- -1
+# test[is.na(test)]   <- -1
+# 
+# 

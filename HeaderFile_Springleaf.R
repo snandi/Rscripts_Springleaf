@@ -5,6 +5,11 @@ chooseCRANmirror(graphics = F, ind = which(Mirrors$Name == 'USA (IA)'))
 Packages <- c(
   'boot',
   'car',
+  'cluster',
+  'clusterSim',
+  'clValid',
+  'doParallel',
+  'foreach',
   'ggplot2',
   'gridExtra',
   'lattice',
@@ -32,3 +37,5 @@ for(Package in Packages){
 ## For parallel processing, when passing the list of packages to load
 ## in all the cores. Could be different from Packages
 MyAutoLoads <- Packages
+Packages_Par <- Packages
+
