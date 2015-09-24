@@ -11,6 +11,7 @@ Packages <- c(
   'doParallel',
   'foreach',
   'ggplot2',
+  'glmnet',
   'gridExtra',
   'lattice',
   'plyr',

@@ -3,7 +3,7 @@ rm(list=objects(all.names=TRUE))
 #dev.off()
 
 ########################################################################
-## This script uses Lasso to choose important features
+## This script removes NA, removes 999999, lists meaningless integer vars
 ########################################################################
 
 ########################################################################
@@ -98,19 +98,3 @@ foreach(feature = feature.int, .inorder=FALSE, .packages=Packages_Par) %dopar%  
   )
 stopCluster(cl)
 gc()
-
-for(feature in feature.chr){
-  if(max(is.na(train[,feature])) > 0){
-    train[,feature] <- na.is.zero(train[,feature])
-    cat(feature, file = f_NA, sep='\n', append=T)
-  }
-  train[,feature] <- as.factor(train[,feature]
-}
-
-                                        # 
-# 
-# cat("replacing missing values with -1\n")
-# train[is.na(train)] <- -1
-# test[is.na(test)]   <- -1
-# 
-# 

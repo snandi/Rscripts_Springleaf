@@ -111,3 +111,75 @@ fn_boxplot <- function(train, feature, RPlotPath, f_badVar_Int, f_NA, f_99){
 }
 ########################################################################
 
+########################################################################
+## This fixes the integer variables
+########################################################################
+fn_fixIntVars <- function(train, test, feature){
+  
+  Changed <- 0
+  ## Check 1
+  if(max(is.na(train[,feature])) > 0){
+    train[, feature] <- na.is.zero(train[, feature])
+    test[, feature] <- na.is.zero(test[, feature])
+    Changed <- 1
+  }
+  
+  ## Check 2
+  if(min(train[,feature]) < -99990){
+    train[, feature][train[,feature] <= -99990] <- 0
+    test[, feature][test[,feature] <= -99990] <- 0
+    Changed <- 1
+  }
+  
+  ## log
+  if(min(c(train[,feature], test[,feature])) > 0){
+    train[, feature] <- log(train[,feature])
+    test[, feature] <- log(test[, feature])
+    print(feature)  
+  }
+  
+  trainfeature <- train[, feature]
+  testfeature <- test[, feature]  
+  return(list(trainfeature = trainfeature, testfeature = testfeature))
+}
+
+########################################################################
+## Produce Lasso CV Lambda plots
+########################################################################
+fn_LassoCV <- function(train, NCores){
+  feature.names <- names(train) %w/o% 'target'
+  
+  set.seed(10)
+  VarFrom <- 1
+  VarTo <- min(VarFrom + 249, length(feature.names))
+  
+  for(i in 1:8){
+    Time1 <- Sys.time()
+    NCores <- NCores
+    cl <- makeCluster(NCores)
+    registerDoParallel(cl)
+    
+    CV <- cv.glmnet(
+      x        = as.matrix(train[, VarFrom : VarTo]),
+      y        = train[, 'target'],
+      family   = "binomial",
+      parallel = TRUE
+    )
+    
+    stopCluster(cl)
+    Time2 <- Sys.time()
+    print(Time2 - Time1)
+    
+    Filename <- paste0(RPlotPath, 'LassoCV_', VarFrom, '-', VarTo, '.pdf')
+    pdf(file = Filename)
+    plot.cv.glmnet(CV)
+    title(paste('From', VarFrom, 'To', VarTo))
+    dev.off()
+
+    Filename <- paste0(RDataPath, 'LassoCV_', VarFrom, '-', VarTo, '.RData')
+    save(CV, file = Filename)
+    
+    VarFrom <- VarTo + 1
+    VarTo <- min(VarFrom + 249, length(feature.names))
+  }
+}
