@@ -146,7 +146,7 @@ fn_fixIntVars <- function(train, test, feature){
 ########################################################################
 ## Produce Lasso CV Lambda plots
 ########################################################################
-fn_LassoCV <- function(train, NCores){
+fn_LassoCV <- function(train, NCores, Lambdas){
   feature.names <- names(train) %w/o% 'target'
   
   set.seed(10)
@@ -163,6 +163,7 @@ fn_LassoCV <- function(train, NCores){
       x        = as.matrix(train[, VarFrom : VarTo]),
       y        = train[, 'target'],
       family   = "binomial",
+      lambda   = Lambdas,
       parallel = TRUE
     )
     

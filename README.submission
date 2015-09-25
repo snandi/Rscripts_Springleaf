@@ -100,6 +100,10 @@
 31. submission_35_200Iter_65pctTrain_Mean.csv: training with 65% of the original dataset, 200 iterations, taking the mean of the predictions, with nrounds=140, with max.depth=8
     test-auc: 0.79852; ## Highest score: 0.80489; Difference: 0.00637; Ranked 127/1636
 
+32. submission_38_80Iter_65pctTrain_Mean.csv: training with 65% of the original dataset, 80 iterations, taking the mean of the predictions, with nrounds=140, with max.depth=8
+    test-auc: 0.79724; ## This was after removing NA's and converting some integer variables to log
+
+
 
  
 
