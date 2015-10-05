@@ -126,7 +126,8 @@ Model2 <- glmnet(
   alpha    = 1
 )
 Coef2 <- coef(Model2)
-Variables2 <- (feature.names[1:VarTo])[which(Coef2 > 1e-04)] %w/o% NA
+Variables2 <- (Variables)[which(Coef2 > 1e-04)] %w/o% NA
+print(Variables2)
 
 if(Filename_train == "~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/train_noLog.RData"){
   Filename <- paste0(RDataPath, 'LassoVariables2_noLog.RData')
