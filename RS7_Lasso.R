@@ -3,9 +3,10 @@ rm(list=objects(all.names=TRUE))
 #dev.off()
 
 ########################################################################
-## This script does xgboost on 30% of the train dataset, predicts the
-## test dataset, then repeats the procedure 100 times and uses the
-## average as the final prediction
+## This fits the lasso to 250 variables at a time, by cross validating
+## to get the best lambda, then, chooses the coefficients with non-zero
+## coefficients and re-fits lasso, after re-running CV. Finally, it
+## saves the list of non-zero coefficient variables
 ########################################################################
 
 ########################################################################
@@ -38,11 +39,11 @@ RDataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/'
 ########################################################################
 ## Read in train & test data, without NAs
 ########################################################################
-Filename_train <- paste0(RDataPath, 'train_new.RData')
+Filename_train <- paste0(RDataPath, 'train_noLog.RData')
 load(Filename_train)
 assign(x = 'train', value = train_new)
 
-Filename_test <- paste0(RDataPath, 'test_new.RData')
+Filename_test <- paste0(RDataPath, 'test_noLog.RData')
 load(Filename_test)
 assign(x = 'test', value = test_new)
 
@@ -79,18 +80,21 @@ for(i in 1:8){
     alpha    = 1
   )
   Coef1 <- coef(Model1)
-  Variables1 <- (feature.names[VarFrom:VarTo])[which(Coef1 != 0)] %w/o% NA
+  Variables1 <- (feature.names[VarFrom:VarTo])[which(Coef1 > 1e-04)] %w/o% NA
   Variables <- c(Variables, Variables1)
-  
+  print(length(Variables1))
   VarFrom <- VarTo + 1
   VarTo <- min(VarFrom + 249, length(feature.names))
 }
+## This produces a list of 596 variables that have non-zero coefficients, by lasso
+print(length(Variables))
 
 ########################################################################
-## Step 3: Cross validate on this new set of variables
+## Step 3: Cross validate on this new set of variables, to reduce to
+## an even smaller set
 ########################################################################
-Lambdas <- exp(seq(from = -8, to = -3, length.out = 20))
-NCores <- 8
+Lambdas <- exp(seq(from = -8, to = -4, length.out = 10))
+NCores <- 6
 cl <- makeCluster(NCores)
 registerDoParallel(cl)
 CV <- cv.glmnet(
@@ -102,22 +106,32 @@ CV <- cv.glmnet(
 )
 stopCluster(cl)
 
-Filename <- paste0(RPlotPath, 'LassoCV_SecondRound.pdf')
+if(Filename_train == "~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/train_noLog.RData"){
+  Filename <- paste0(RDataPath, 'LassoCV_SecondRound_noLog.pdf')
+} else{
+  Filename <- paste0(RDataPath, 'LassoCV_SecondRound.pdf')
+}
 pdf(file = Filename)
 plot.cv.glmnet(CV)
 title('Second Round')
 dev.off()
 
+Lambda2 <- CV[['lambda.min']]
+
 Model2 <- glmnet(
   x        = as.matrix(train[, Variables]),
   y        = train[, 'target'],
   family   = "binomial",
-  lambda   = exp(-6),
+  lambda   = Lambda2,
   alpha    = 1
 )
+Coef2 <- coef(Model2)
+Variables2 <- (feature.names[1:VarTo])[which(Coef2 > 1e-04)] %w/o% NA
 
-
-# Filename <- paste0(RDataPath, 'LassoVariables', VarFrom, '-', VarTo, '.RData')
-# save(CV, file = Filename)
-# cat
+if(Filename_train == "~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/train_noLog.RData"){
+  Filename <- paste0(RDataPath, 'LassoVariables2_noLog.RData')
+} else{
+  Filename <- paste0(RDataPath, 'LassoVariables2.RData')
+}
+save(Variables2, file = Filename)
 

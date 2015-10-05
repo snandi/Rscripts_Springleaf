@@ -143,6 +143,28 @@ fn_fixIntVars <- function(train, test, feature){
   return(list(trainfeature = trainfeature, testfeature = testfeature))
 }
 
+fn_fixIntVars_noLog <- function(train, test, feature){
+  
+  Changed <- 0
+  ## Check 1
+  if(max(is.na(train[,feature])) > 0){
+    train[, feature] <- na.is.zero(train[, feature])
+    test[, feature] <- na.is.zero(test[, feature])
+    Changed <- 1
+  }
+  
+  ## Check 2
+  if(min(train[,feature]) < -99990){
+    train[, feature][train[,feature] <= -99990] <- 0
+    test[, feature][test[,feature] <= -99990] <- 0
+    Changed <- 1
+  }
+  
+  trainfeature <- train[, feature]
+  testfeature <- test[, feature]  
+  return(list(trainfeature = trainfeature, testfeature = testfeature))
+}
+
 ########################################################################
 ## Produce Lasso CV Lambda plots
 ########################################################################
