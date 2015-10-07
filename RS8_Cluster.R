@@ -57,16 +57,13 @@ load(Filename)
 ########################################################################
 ## Create subsets of only lasso approved variables
 ########################################################################
-train_subset <- train[, Variables2]
+train_subset <- train[, c(Variables2, 'target')]
 test_subset <- test[, Variables2]
 
-train_kmeans <- clValid::clValid(
-  obj = train_subset[1:50000,], 
-  nClust = 6:12, 
-  clMethods = "kmeans", 
-  validation = "internal", 
-  maxitems = 146000, 
-  metric = "euclidean", 
-  method = "average",
-  neighbSize = 10
+train_kmeans <- kmeans(
+  x         = train_subset,
+  centers   = 6,
+  iter.max  = 10,
+  nstart    = 6
 )
+
