@@ -20,21 +20,6 @@ RDataPath <- '~/Stat/Stat_Competitions/Kaggle_Springleaf_2015Oct/RData/'
 ########################################################################
 
 ########################################################################
-## Command line arguments
-########################################################################
-##First read in the arguments listed at the command line
-## Args <- (commandArgs(TRUE))
-## for(i in 1:length(Args)){
-##   eval(parse(text = Args[[i]]))
-## }
-
-## N_TrainIter <- 80
-## Percent_Train <- 0.65
-## SubmissionNumberStart <- 38
-## Nrounds <- 140
-## Max.Depth <- 8
-
-########################################################################
 ## Read in train & test data, without NAs
 ########################################################################
 Filename_train <- paste0(RDataPath, 'train_noLog.RData')
@@ -54,16 +39,29 @@ gc()
 Filename <- paste0(RDataPath, 'LassoVariables2_noLog.RData')
 load(Filename)
 
+Variables2 <- Variables2 %w/o% 'V1347'
 ########################################################################
-## Create subsets of only lasso approved variables
+## Cluster training data subsets of only lasso approved variables
 ########################################################################
-train_subset <- train[, c(Variables2, 'target')]
-test_subset <- test[, Variables2]
-
 train_kmeans <- kmeans(
-  x         = train_subset,
+  x         = train[, Variables2],
   centers   = 6,
   iter.max  = 10,
   nstart    = 6
 )
 
+Centers <- train_kmeans$centers
+train$cluster <- train_kmeans$cluster
+
+closest.cluster <- function(ClusterObj, NewData) {
+  cluster.dist <- apply(ClusterObj$centers, 1, function(y) sqrt(sum((NewData - y)^2)))
+  return(which.min(cluster.dist)[1])
+}
+
+test$cluster <- apply(test[, Variables2], 1, closest.cluster, ClusterObj = train_kmeans)
+
+Filename_train <- paste0(RDataPath, 'train_noLog_cluster.RData')
+save(train, file = Filename_train)
+
+Filename_test <- paste0(RDataPath, 'test_noLog_cluster.RData')
+save(test, file = Filename_test)
